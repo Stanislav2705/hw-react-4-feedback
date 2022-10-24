@@ -1,51 +1,50 @@
-import { Component } from "react";
 import Block from "components/Block/Block";
 import VoteResults from "components/VoteResults/VoteResults";
 import VoteActions from "components/VoteActions/VoteActions";
 import { Error } from "./Vote.styled";
+import { useState } from "react";
 
 
+export default function Vote() {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
 
-export default class Vote extends Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0
-  }
-
-  countTotal() {
-    const { good, neutral, bad } = this.state;
+  const countTotal = () => {
     return good + neutral + bad;
   }
 
-  countPercentage() {
-    const total = this.countTotal();
+  const countPercentage = () => {
+    const total = countTotal();
     if (!total) {
       return 0;
     }
-    const voteGood = this.state.good
-    const result = (voteGood / total) * 100;
+    const result = (good / total) * 100;
     return Number(result.toFixed(1))
 
   }
 
-  leaveVote = (propertyName) => {
-    this.setState((prevState) => {
-      const value = prevState[propertyName];
-      return {
-        [propertyName]: value + 1
-      }
-    })
+  const leaveVote = (propertyName) => {
+    switch (propertyName) {
+      case "good":
+        return setGood((prev) => prev + 1);
+      case "neutral":
+        return setNeutral((prev) => prev + 1);
+      case "bad":
+        return setBad((prev) => prev + 1);
+      default:
+        return;
+    }
   }
 
-  render() {
-    const { good, neutral, bad } = this.state
-    const total = this.countTotal();
-    const goodPercent = this.countPercentage()
-    return (
-      <div>
+  const total = countTotal();
+
+  const goodPercent = countPercentage();
+
+  return (
+    <div>
         <Block title="Please leave feedback">
-          <VoteActions leaveVote={this.leaveVote} />
+          <VoteActions leaveVote={leaveVote} />
         </Block>
         <Block title="Statistics">
           {!total ? <Error>No feedback given</Error> :
@@ -58,6 +57,7 @@ export default class Vote extends Component {
           />}
         </Block>
       </div>
-    )
-  }
+  )
 }
+
+
